@@ -1,52 +1,48 @@
-"use client";
-
-import { signIn, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+"use client"
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import useAxiosSecure from "@/hooks/useAxiosSecure";
 
-export default function LoginPage() {
+export default function Signup() {
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const axiosSecure = useAxiosSecure();
   const router = useRouter();
-  const session = useSession();
-
-  useEffect(() => {
-    if (session.status === "unauthenticated") {
-      return router.push("/");
-    } else {
-      return router.push("/dashboard");
-    }
-  }, [router, session.status]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await signIn("credentials", {
-      redirect: false,
+    const payload = {
+      name,
       email,
       password,
-    });
-    if (res?.error) {
-      setError("Invalid email or password");
-    } else {
-      router.push("/dashboard");
-      setError("");
+      role: "user"
+    }
+    const data = await axiosSecure.post("/api/signup", payload).then(res => res.data)
+    if(data.success){
+      router.push('/')
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit}
       className="w-full flex items-center justify-center h-screen"
     >
-      <div className="p-10 text-center shadow bg-neutral-100 rounded-2xl space-y-5">
+      <div className="p-10 text-center shadow bg-neutral-100 rounded-2xl space-y-5 ">
         <h3 className="text-main dark:text-white text-2xl font-bold tracking-tight mb-2">
-          Welcome Back
+          New to here?
         </h3>
         <p className="text-gray-400 text-sm font-normal">
-          Enter your details to access your projects.
+          Enter your details to create your projects.
         </p>
+        <input
+          value={name}
+          type="text"
+          placeholder="Full Name"
+          className="input"
+          onChange={(e) => setName(e.target.value)}
+        />
         <input
           value={email}
           type="email"
@@ -61,12 +57,15 @@ export default function LoginPage() {
           className="input"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <p className="text-red-500">{error}</p>
+        <p></p>
         <button type="submit" className="btn">
-          Log in
+          Sign up
         </button>
         <p className="text-gray-500">
-          Don&apos;t have an account? <Link href="/signup" className="text-black underline">Sign up</Link>
+          Already have an account?{" "}
+          <Link href="/" className="text-black underline">
+            Sign in
+          </Link>
         </p>
       </div>
     </form>

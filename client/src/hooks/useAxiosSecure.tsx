@@ -1,19 +1,26 @@
+"use client";
+
 import axios from "axios";
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { useSession } from "next-auth/react";
+import { useMemo } from "react";
 
-const axiosInstant = axios.create({
-  baseURL: "http://localhost:5000"
-})
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:5000",
+});
 
+export default function useAxiosSecure() {
+  const { data: session } = useSession();
 
-export default async function useAxiosSecure() {
-  const session = await getServerSession(authOptions);
+  const instance = useMemo(() => {
+    axiosInstance.interceptors.request.use((config) => {
+      if (session?.user?.accessToken) {
+        config.headers.Authorization = `Bearer ${session.user.accessToken}`;
+      }
+      return config;
+    });
 
-  axiosInstant.interceptors.request.use(config=>{
-    config.headers.authorization = `Bearer ${session?.user?.accessToken}`;
-    return config
-  })
-  
-  return axiosInstant
+    return axiosInstance;
+  }, [session?.user?.accessToken]);
+
+  return instance;
 }

@@ -3,8 +3,10 @@ import { userControllers } from "./user.controller";
 
 const router = Router();
 
+router.post("/signup", userControllers.signup);
 
-router.post("/login", userControllers.login)
+
+router.post("/login", userControllers.login);
 
 
 

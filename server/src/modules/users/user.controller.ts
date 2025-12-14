@@ -11,7 +11,6 @@ const login = async (req: Request, res: Response)=> {
       result: result
     })
   } catch (error: any) {
-    console.log(error)
     res.status(500).json({
       success: false,
       message: "Login failed",
@@ -21,6 +20,26 @@ const login = async (req: Request, res: Response)=> {
 }
 
 
-export const userControllers = {
-  login
+
+const signup = async (req: Request, res: Response) => {
+  try {
+    const result = await userServices.signup(req.body);
+    res.status(201).json({
+      success: true,
+      message: "Sign up successful",
+      result: result
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: "Sign up failed",
+      error: error.message,
+    });
+  }
 }
+
+
+export const userControllers = {
+  login,
+  signup
+};

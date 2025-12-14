@@ -1,6 +1,7 @@
-import User from "./user.model"
+import {User} from "./user.model"
 import jwt from "jsonwebtoken"
 import config from "../../config"
+import bcrypt from "bcryptjs"
 
 const login = async(email: string, password: string)=>{
   const user = await User.findOne({ email })
@@ -8,7 +9,7 @@ const login = async(email: string, password: string)=>{
     return null
   }
 
-  const isMatched = password === user.password;
+  const isMatched = await bcrypt.compare(password, user.password);
   if(!isMatched){
     return null
   }
@@ -25,6 +26,24 @@ const login = async(email: string, password: string)=>{
 
 
 
+
+interface SignupPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}
+const signup = async (payload: SignupPayload) => {
+  const { name, email, password, role } = payload;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const doc = { name, email, password: hashedPassword, role };
+  const result = await User.insertOne(doc);
+  return result
+}
+
+
+
 export const userServices = {
-  login
+  login,
+  signup
 }

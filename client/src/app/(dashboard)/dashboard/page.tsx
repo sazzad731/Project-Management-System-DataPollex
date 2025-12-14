@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 
 
 export default function DashboardLayout() {
-  const session = useSession();
+  const {data: session} = useSession();
 
   return <div>
     DashboardLayout
